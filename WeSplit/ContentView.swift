@@ -10,19 +10,22 @@ import SwiftUI
 struct ContentView: View {
     
     @State private var checkAmount = ""
-    @State private var numberOfPeople = 0
+    @State private var numberOfPeople = ""
     @State private var tipsPercentage = 0
     
-    private var totalPerPerson: Double {
-        
+    private var totalAmount: Double {
         let checkAmount = Double(checkAmount) ?? 0.0
-        let peopleCount = Double(numberOfPeople + 2)
         let tipsSelection = Double(tipPercentages[tipsPercentage])
         
         let tipsAmount = checkAmount / 100 * tipsSelection
         let grandTotal = checkAmount + tipsAmount
-        let amountPerPerson = grandTotal / peopleCount
         
+        return grandTotal
+    }
+    
+    private var totalPerPerson: Double {
+        let peopleCount = Double(numberOfPeople) ?? 1.0
+        let amountPerPerson = totalAmount / peopleCount
         return amountPerPerson
     }
     
@@ -35,11 +38,8 @@ struct ContentView: View {
                     TextField("Amount", text: $checkAmount)
                         .keyboardType(.decimalPad)
                     
-                    Picker("Number of people", selection: $numberOfPeople) {
-                        ForEach(2 ..< 100) {
-                            Text("\($0) people")
-                        }
-                    }
+                    TextField("Number of people", text: $numberOfPeople)
+                        .keyboardType(.numberPad)
                 }
                 
                 Section(header: Text("How much tip do you want to leave?")) {
@@ -51,11 +51,15 @@ struct ContentView: View {
                     .pickerStyle(SegmentedPickerStyle())
                 }
                 
-                Section {
+                Section(header: Text("Total Amount")) {
+                    Text("$\(totalAmount, specifier: "%.2f")")
+                }
+                
+                Section(header: Text("Amount per person")) {
                     Text("$\(totalPerPerson, specifier: "%.2f")")
                 }
             }
-            .navigationBarTitle("WeSplit", displayMode: .inline)
+            .navigationBarTitle("WeSplit", displayMode: .automatic)
         }
     }
 }
